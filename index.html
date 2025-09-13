@@ -567,18 +567,6 @@
             .background-animations {
                 opacity: 0.5;
             }
-
-            /* Audio player mobile adjustments */
-            .audio-player {
-                bottom: 1rem;
-                right: 1rem;
-                max-width: 250px;
-                padding: 0.75rem;
-            }
-
-            .track-title {
-                font-size: 0.8rem;
-            }
         }
 
         /* Smooth scrolling */
@@ -590,6 +578,12 @@
 <body>
     <!-- Background Animations -->
     <div class="background-animations" id="backgroundAnimations"></div>
+
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto">
+        <source src="./portfoliomix.wav" type="audio/wav">
+        <source src="./portfoliomix.wav" type="audio/mpeg">
+    </audio>
 
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
@@ -776,6 +770,7 @@
                         mainContent.classList.add('visible');
                         initializeMainContent();
                         initializeBackgroundAnimations();
+                        initializeBackgroundMusic();
                     }, 300);
                 }
                 
@@ -970,6 +965,45 @@
                 createWaveform();
                 createParticle();
             }, 1000);
+        }
+
+        // Background Music functionality
+        function initializeBackgroundMusic() {
+            const audio = document.getElementById('backgroundMusic');
+            
+            // Set volume to 30%
+            audio.volume = 0.3;
+            
+            // Try to play the audio
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Background music started successfully');
+                }).catch(error => {
+                    console.log('Autoplay was prevented, trying user interaction approach:', error);
+                    // Add click listener to start music on first user interaction
+                    document.addEventListener('click', function startMusicOnClick() {
+                        audio.play().then(() => {
+                            console.log('Background music started after user interaction');
+                        }).catch(err => {
+                            console.log('Failed to start music:', err);
+                        });
+                        // Remove the event listener after first click
+                        document.removeEventListener('click', startMusicOnClick);
+                    });
+                });
+            }
+
+            // Error handling
+            audio.addEventListener('error', (e) => {
+                console.log('Background music error - check file path:', e);
+            });
+
+            // Log when music loads
+            audio.addEventListener('canplay', () => {
+                console.log('Music file loaded successfully');
+            });
         }
     </script>
 </body>
