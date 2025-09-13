@@ -18,6 +18,157 @@
             color: #ffffff;
             overflow-x: hidden;
             line-height: 1.6;
+            position: relative;
+        }
+
+        /* Background Animations */
+        .background-animations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Sound Wave Circles */
+        .sound-wave {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: soundWave 8s ease-out infinite;
+        }
+
+        @keyframes soundWave {
+            0% {
+                width: 20px;
+                height: 20px;
+                opacity: 1;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        /* Waveform Lines */
+        .waveform {
+            position: absolute;
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.3) 20%, 
+                rgba(255, 255, 255, 0.6) 50%, 
+                rgba(255, 255, 255, 0.3) 80%, 
+                transparent 100%);
+            animation: waveformTravel 12s linear infinite;
+        }
+
+        @keyframes waveformTravel {
+            0% {
+                left: -200px;
+                transform: scaleY(1);
+            }
+            25% {
+                transform: scaleY(0.3);
+            }
+            50% {
+                transform: scaleY(1.5);
+            }
+            75% {
+                transform: scaleY(0.7);
+            }
+            100% {
+                left: calc(100% + 200px);
+                transform: scaleY(1);
+            }
+        }
+
+        /* Audio Bars */
+        .audio-bars {
+            position: absolute;
+            display: flex;
+            align-items: end;
+            gap: 3px;
+        }
+
+        .audio-bar {
+            width: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            animation: audioBar 2s ease-in-out infinite;
+        }
+
+        .audio-bar:nth-child(1) { animation-delay: 0s; height: 20px; }
+        .audio-bar:nth-child(2) { animation-delay: 0.1s; height: 35px; }
+        .audio-bar:nth-child(3) { animation-delay: 0.2s; height: 15px; }
+        .audio-bar:nth-child(4) { animation-delay: 0.3s; height: 45px; }
+        .audio-bar:nth-child(5) { animation-delay: 0.4s; height: 25px; }
+        .audio-bar:nth-child(6) { animation-delay: 0.5s; height: 40px; }
+        .audio-bar:nth-child(7) { animation-delay: 0.6s; height: 30px; }
+
+        @keyframes audioBar {
+            0%, 100% { transform: scaleY(0.3); opacity: 0.3; }
+            50% { transform: scaleY(1); opacity: 0.8; }
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: floatParticle 15s linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) translateX(20px) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) translateX(-20px) scale(1);
+            }
+            100% {
+                transform: translateY(0) translateX(0) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Sine Wave */
+        .sine-wave {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: sineWave 6s ease-in-out infinite;
+        }
+
+        @keyframes sineWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 10% 30%, 20% 70%, 30% 20%, 40% 80%, 50% 40%, 60% 60%, 70% 10%, 80% 90%, 90% 35%, 100% 50%);
+                opacity: 0.3;
+            }
+            50% { 
+                clip-path: polygon(0 50%, 10% 70%, 20% 30%, 30% 80%, 40% 20%, 50% 60%, 60% 40%, 70% 90%, 80% 10%, 90% 65%, 100% 50%);
+                opacity: 0.7;
+            }
+        }
+
+        /* Ensure main content is above background */
+        .main-content, .loading-screen {
+            position: relative;
+            z-index: 10;
         }
 
         /* Loading Screen */
@@ -411,6 +562,11 @@
             .tab:hover {
                 transform: translateX(5px);
             }
+
+            /* Reduce animations on mobile */
+            .background-animations {
+                opacity: 0.5;
+            }
         }
 
         /* Smooth scrolling */
@@ -420,6 +576,9 @@
     </style>
 </head>
 <body>
+    <!-- Background Animations -->
+    <div class="background-animations" id="backgroundAnimations"></div>
+
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-container">
@@ -604,6 +763,7 @@
                         loadingScreen.classList.add('hidden');
                         mainContent.classList.add('visible');
                         initializeMainContent();
+                        initializeBackgroundAnimations();
                     }, 300);
                 }
                 
@@ -700,6 +860,104 @@
             // Update immediately and then every second
             updateTime();
             setInterval(updateTime, 1000);
+        }
+
+        // Background Animations
+        function initializeBackgroundAnimations() {
+            const backgroundContainer = document.getElementById('backgroundAnimations');
+            
+            // Create sound wave circles
+            function createSoundWave() {
+                const wave = document.createElement('div');
+                wave.className = 'sound-wave';
+                wave.style.left = Math.random() * 100 + '%';
+                wave.style.top = Math.random() * 100 + '%';
+                backgroundContainer.appendChild(wave);
+                
+                setTimeout(() => {
+                    if (wave.parentNode) {
+                        wave.parentNode.removeChild(wave);
+                    }
+                }, 8000);
+            }
+
+            // Create waveform lines
+            function createWaveform() {
+                const waveform = document.createElement('div');
+                waveform.className = 'waveform';
+                waveform.style.top = Math.random() * 100 + '%';
+                backgroundContainer.appendChild(waveform);
+                
+                setTimeout(() => {
+                    if (waveform.parentNode) {
+                        waveform.parentNode.removeChild(waveform);
+                    }
+                }, 12000);
+            }
+
+            // Create audio visualizer bars
+            function createAudioBars() {
+                const bars = document.createElement('div');
+                bars.className = 'audio-bars';
+                bars.style.left = Math.random() * 80 + '%';
+                bars.style.top = Math.random() * 80 + '%';
+                
+                for (let i = 0; i < 7; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'audio-bar';
+                    bars.appendChild(bar);
+                }
+                
+                backgroundContainer.appendChild(bars);
+                
+                setTimeout(() => {
+                    if (bars.parentNode) {
+                        bars.parentNode.removeChild(bars);
+                    }
+                }, 6000);
+            }
+
+            // Create floating particles
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                backgroundContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 15000);
+            }
+
+            // Create sine waves
+            function createSineWave() {
+                const sineWave = document.createElement('div');
+                sineWave.className = 'sine-wave';
+                sineWave.style.top = Math.random() * 100 + '%';
+                backgroundContainer.appendChild(sineWave);
+                
+                setTimeout(() => {
+                    if (sineWave.parentNode) {
+                        sineWave.parentNode.removeChild(sineWave);
+                    }
+                }, 6000);
+            }
+
+            // Start animations at different intervals
+            setInterval(createSoundWave, 4000);
+            setInterval(createWaveform, 6000);
+            setInterval(createAudioBars, 8000);
+            setInterval(createParticle, 3000);
+            setInterval(createSineWave, 10000);
+
+            // Create initial animations
+            setTimeout(() => {
+                createSoundWave();
+                createWaveform();
+                createParticle();
+            }, 1000);
         }
     </script>
 </body>
