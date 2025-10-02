@@ -166,7 +166,7 @@
         }
 
         /* Ensure main content is above background */
-        .main-content, .loading-screen {
+        .main-content, .loading-screen, .enter-screen {
             position: relative;
             z-index: 10;
         }
@@ -244,6 +244,119 @@
         @keyframes shimmer {
             0% { left: -100%; }
             100% { left: 100%; }
+        }
+
+        /* Enter Screen */
+        .enter-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .enter-screen.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .enter-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .enter-container {
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .enter-title {
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+            text-transform: lowercase;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .enter-subtitle {
+            font-size: 1rem;
+            color: #999;
+            margin-bottom: 3rem;
+            letter-spacing: 1px;
+        }
+
+        .enter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-family: 'Inconsolata', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 1.2rem 3rem;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .enter-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .enter-button:hover::before {
+            left: 100%;
+        }
+
+        .enter-button:active {
+            transform: translateY(-1px);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .enter-button {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .enter-button:hover {
+            animation: none;
         }
 
         /* Main Content */
@@ -563,6 +676,15 @@
                 transform: translateX(5px);
             }
 
+            .enter-title {
+                font-size: 2rem;
+            }
+
+            .enter-button {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+
             /* Reduce animations on mobile */
             .background-animations {
                 opacity: 0.5;
@@ -580,7 +702,7 @@
     <div class="background-animations" id="backgroundAnimations"></div>
 
     <!-- Background Music -->
-    <audio id="backgroundMusic" autoplay loop preload="auto">
+    <audio id="backgroundMusic" loop preload="auto">
         <source src="./portfoliomix.wav" type="audio/wav">
         <source src="./portfoliomix.wav" type="audio/mpeg">
     </audio>
@@ -593,6 +715,15 @@
                 <div class="loading-bar" id="loadingBar"></div>
             </div>
             <div class="loading-percentage" id="loadingPercentage">0%</div>
+        </div>
+    </div>
+
+    <!-- Enter Screen -->
+    <div class="enter-screen" id="enterScreen">
+        <div class="enter-container">
+            <h1 class="enter-title">welcome</h1>
+            <p class="enter-subtitle">press the button below to proceed :)</p>
+            <button class="enter-button" id="enterButton">enter portfolio</button>
         </div>
     </div>
 
@@ -750,7 +881,9 @@
             const loadingScreen = document.getElementById('loadingScreen');
             const loadingBar = document.getElementById('loadingBar');
             const loadingPercentage = document.getElementById('loadingPercentage');
+            const enterScreen = document.getElementById('enterScreen');
             const mainContent = document.getElementById('mainContent');
+            const enterButton = document.getElementById('enterButton');
             
             let progress = 0;
             const totalTime = 2500; // 2.5 seconds
@@ -764,20 +897,42 @@
                     progress = 100;
                     clearInterval(loadingInterval);
                     
-                    // Complete loading
+                    // Complete loading and show enter screen
                     setTimeout(() => {
                         loadingScreen.classList.add('hidden');
-                        mainContent.classList.add('visible');
-                        initializeMainContent();
-                        initializeBackgroundAnimations();
-                        initializeBackgroundMusic();
+                        enterScreen.classList.add('visible');
                     }, 300);
                 }
                 
                 loadingBar.style.width = progress + '%';
                 loadingPercentage.textContent = Math.floor(progress) + '%';
             }, interval);
+
+            // Enter button click handler
+            enterButton.addEventListener('click', function() {
+                enterScreen.classList.add('hidden');
+                mainContent.classList.add('visible');
+                initializeMainContent();
+                initializeBackgroundAnimations();
+                startBackgroundMusic();
+            });
         });
+
+        // Start background music
+        function startBackgroundMusic() {
+            const audio = document.getElementById('backgroundMusic');
+            audio.volume = 0.3;
+            
+            audio.play().then(() => {
+                console.log('Background music started successfully');
+            }).catch(error => {
+                console.log('Failed to start music:', error);
+            });
+
+            audio.addEventListener('error', (e) => {
+                console.log('Background music error - check file path:', e);
+            });
+        }
 
         // Initialize main content functionality
         function initializeMainContent() {
@@ -965,45 +1120,6 @@
                 createWaveform();
                 createParticle();
             }, 1000);
-        }
-
-        // Background Music functionality
-        function initializeBackgroundMusic() {
-            const audio = document.getElementById('backgroundMusic');
-            
-            // Set volume to 30%
-            audio.volume = 0.3;
-            
-            // Try to play the audio
-            const playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('Background music started successfully');
-                }).catch(error => {
-                    console.log('Autoplay was prevented, trying user interaction approach:', error);
-                    // Add click listener to start music on first user interaction
-                    document.addEventListener('click', function startMusicOnClick() {
-                        audio.play().then(() => {
-                            console.log('Background music started after user interaction');
-                        }).catch(err => {
-                            console.log('Failed to start music:', err);
-                        });
-                        // Remove the event listener after first click
-                        document.removeEventListener('click', startMusicOnClick);
-                    });
-                });
-            }
-
-            // Error handling
-            audio.addEventListener('error', (e) => {
-                console.log('Background music error - check file path:', e);
-            });
-
-            // Log when music loads
-            audio.addEventListener('canplay', () => {
-                console.log('Music file loaded successfully');
-            });
         }
     </script>
 </body>
