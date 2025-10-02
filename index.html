@@ -165,13 +165,7 @@
             }
         }
 
-        /* Ensure main content is above background */
-        .main-content, .loading-screen, .enter-screen {
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Loading Screen */
+        /* Loading Screen - ALWAYS VISIBLE BY DEFAULT */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -183,13 +177,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            z-index: 10000;
+            opacity: 1;
+            visibility: visible;
         }
 
         .loading-screen.hidden {
             opacity: 0;
             visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
 
         .loading-container {
@@ -246,7 +242,7 @@
             100% { left: 100%; }
         }
 
-        /* Enter Screen */
+        /* Enter Screen - HIDDEN BY DEFAULT */
         .enter-screen {
             position: fixed;
             top: 0;
@@ -258,20 +254,21 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9998;
+            z-index: 9999;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
 
         .enter-screen.visible {
             opacity: 1;
             visibility: visible;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
 
         .enter-screen.hidden {
             opacity: 0;
             visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
 
         .enter-container {
@@ -359,14 +356,18 @@
             animation: none;
         }
 
-        /* Main Content */
+        /* Main Content - HIDDEN BY DEFAULT */
         .main-content {
+            position: relative;
+            z-index: 10;
             opacity: 0;
-            transition: opacity 0.8s ease;
+            visibility: hidden;
         }
 
         .main-content.visible {
             opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
 
         .container {
@@ -701,7 +702,7 @@
     <!-- Background Animations -->
     <div class="background-animations" id="backgroundAnimations"></div>
 
-    <!-- Background Music -->
+    <!-- Background Music - NO AUTOPLAY -->
     <audio id="backgroundMusic" loop preload="auto">
         <source src="./portfoliomix.wav" type="audio/wav">
         <source src="./portfoliomix.wav" type="audio/mpeg">
@@ -876,8 +877,13 @@
     </div>
 
     <script>
+        // Prevent any accidental music autoplay
+        document.getElementById('backgroundMusic').pause();
+        
         // Loading Animation
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded - starting sequence');
+            
             const loadingScreen = document.getElementById('loadingScreen');
             const loadingBar = document.getElementById('loadingBar');
             const loadingPercentage = document.getElementById('loadingPercentage');
@@ -897,10 +903,13 @@
                     progress = 100;
                     clearInterval(loadingInterval);
                     
+                    console.log('Loading complete - showing enter screen');
+                    
                     // Complete loading and show enter screen
                     setTimeout(() => {
                         loadingScreen.classList.add('hidden');
                         enterScreen.classList.add('visible');
+                        console.log('Enter screen should now be visible');
                     }, 300);
                 }
                 
@@ -910,6 +919,8 @@
 
             // Enter button click handler
             enterButton.addEventListener('click', function() {
+                console.log('Enter button clicked');
+                enterScreen.classList.remove('visible');
                 enterScreen.classList.add('hidden');
                 mainContent.classList.add('visible');
                 initializeMainContent();
@@ -918,8 +929,9 @@
             });
         });
 
-        // Start background music
+        // Start background music - ONLY CALLED WHEN BUTTON IS CLICKED
         function startBackgroundMusic() {
+            console.log('Attempting to start music');
             const audio = document.getElementById('backgroundMusic');
             audio.volume = 0.3;
             
