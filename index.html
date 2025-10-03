@@ -503,6 +503,13 @@
             box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
         }
 
+        .tab.active {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
         .tab-header {
             padding: 1.5rem 2rem;
             display: flex;
@@ -541,7 +548,8 @@
             background: rgba(0, 0, 0, 0.2);
         }
 
-        .tab:hover .tab-content {
+        .tab:hover .tab-content,
+        .tab.active .tab-content {
             max-height: 400px;
             padding: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -760,7 +768,7 @@
                         <div class="tab-content-inner">
                             <h3>Professional Experience</h3>
                             
-                            <p><strong>ServiceNow - Marketing Associate Intern, Analytics & AI</strong></p>
+                            <p><strong><a href="https://www.servicenow.com/" target="_blank" style="color: #ffffff; text-decoration: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">ServiceNow</a> - Marketing Associate Intern, Analytics & AI</strong></p>
                             <p><strong>Duration:</strong> Jun 2025 - Sep 2025 | Waltham, MA</p>
                             <ul>
                                 <li>Architected AI-powered analytics frameworks (Power BI Smart Narrative) to unify key metric insights reporting and enhance dashboard accessibility for stakeholders</li>
@@ -769,7 +777,7 @@
                                 <li>Produced an AI-enablement tutorial video for Copilot Studio using Adobe, reaching 5+ teams with 100+ views</li>
                             </ul>
                             
-                            <p style="margin-top: 1.5rem;"><strong>ServiceNow - Product & Solutions Marketing Co-op (IT Service Management)</strong></p>
+                            <p style="margin-top: 1.5rem;"><strong><a href="https://www.servicenow.com/" target="_blank" style="color: #ffffff; text-decoration: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">ServiceNow</a> - Product & Solutions Marketing Co-op (IT Service Management)</strong></p>
                             <p><strong>Duration:</strong> Jul 2024 - Dec 2024 | Waltham, MA</p>
                             <ul>
                                 <li>Created competitive analysis decks on top GenAI competitors with Excel, utilized and presented to determine key market segmentation factors</li>
@@ -777,7 +785,7 @@
                                 <li>Developed story messaging first-call deck for new product DEX, presented to 400+ attendees at Toronto and Dallas World Forums</li>
                             </ul>
                             
-                            <p style="margin-top: 1.5rem;"><strong>RiseKit - Business and Quality Analyst</strong></p>
+                            <p style="margin-top: 1.5rem;"><strong><a href="https://risekit.co/" target="_blank" style="color: #ffffff; text-decoration: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">RiseKit</a> - Business and Quality Analyst</strong></p>
                             <p><strong>Duration:</strong> May 2023 - Jun 2024 | Chicago, IL</p>
                             <ul>
                                 <li>Led the Quality Assurance (QA) process, eliminating 100+ software-related bugs, saving 1000+ hours of labor</li>
@@ -851,23 +859,25 @@
                     <div class="tab-content">
                         <div class="tab-content-inner">
                             <h3>Personal & Academic Projects</h3>
-                            <p><strong>[Project Name] - [Brief Description]</strong></p>
-                            <p><strong>Technologies:</strong> [Languages, frameworks, tools used]</p>
-                            <p>A comprehensive project that demonstrates my skills in [relevant area]. Key features include:</p>
+                            
+                            <p><strong>Roamify - Travel Database</strong></p>
+                            <p><strong>Technologies:</strong> Python, MySQL, Git, REST API, Docker, Flask</p>
+                            <p>A travel booking site that takes hotel price, transportation efficiency, and travel preferences into account in order to determine the best travel option for a customer. Key features include:</p>
                             <ul>
-                                <li>Built [specific functionality or feature]</li>
-                                <li>Implemented [technical achievements]</li>
-                                <li>Solved [problems or challenges addressed]</li>
-                                <li>Learned [new skills or technologies gained]</li>
+                                <li>Utilizes an API that has data on hotels, flights, taxis, prices, and filtering</li>
+                                <li>Website will include a filtering system that allows you to filter by location preference, as well as general price ranges for the entire trip or specific segments</li>
+                                <li>Website is easily accessible to all types of customers, ranging from single travelers to families, or business partners</li>
                             </ul>
-                            <p><strong>[Another Project Name]</strong></p>
-                            <p><strong>Technologies:</strong> [Tech stack]</p>
+                            
+                            <p style="margin-top: 1.5rem;"><strong>Visual Analysis of Political Affiliation vs. Vaccine Distribution</strong></p>
+                            <p><strong>Technologies:</strong> Tableau, Java, Python, Altair, GIS</p>
+                            <p>Analyzed the relationship between political affiliation and COVID-19 vaccine distribution across U.S. counties using a merged dataset, advanced statistical modeling, and interactive visualizations to uncover public health trends impacted by political ideology. Key features include:</p>
                             <ul>
-                                <li>Developed [key components]</li>
-                                <li>Integrated [systems or APIs]</li>
-                                <li>Optimized [performance or user experience aspects]</li>
+                                <li>Merged and processed large-scale CDC vaccination and MIT Election Data Science Lab county-level datasets</li>
+                                <li>Engineered features to quantify county-level political lean and conducted comprehensive data cleaning, normalization, and handling of missing data</li>
+                                <li>Applied Pearson's correlation and linear regression, controlling for population density, median income, and healthcare access to identify key predictors of vaccination rates</li>
+                                <li>Developed interactive dashboards with Python (plot.ly) and Tableau, including choropleth maps and boxplots, to visualize geographic and statistical impact of political ideology on vaccine uptake</li>
                             </ul>
-                            <p>These projects showcase my passion for [your interests] and my ability to turn ideas into functional solutions.</p>
                         </div>
                     </div>
                 </div>
@@ -879,16 +889,15 @@
                     </div>
                     <div class="tab-content">
                         <div class="tab-content-inner">
-                            <h3>Musical Journey</h3>
-                            <p>Music has always been a central part of my creative expression. Here are some highlights from my musical endeavors:</p>
+                            <h3>Music Production & DJing</h3>
+                            <p><strong>Listen Here:</strong> <a href="https://soundcloud.com/whoislucosis" target="_blank" style="color: #ffffff; text-decoration: underline;">https://soundcloud.com/whoislucosis</a></p>
+                            <p style="margin-top: 1rem;">Outside of my professional works, I've always had a burning passion for music. Throughout my life, I've channeled music through many of my hobbies, and use it to help fuel my creative abilities as I move through my career.</p>
                             <ul>
-                                <li>Released EP "Title Here" featuring original compositions</li>
-                                <li>Performed at local venues including [Venue Names]</li>
-                                <li>Collaborated with artists on various recording projects</li>
-                                <li>Proficient in [instruments/software]</li>
-                                <li>Genres: [Your preferred genres]</li>
+                                <li>Electronically produced songs and mixes reaching over 75k+ listeners</li>
+                                <li>8+ years of DJ experience, performing at notable venues across Boston</li>
+                                <li>Mixing music for dance studios across Illinois</li>
+                                <li>Fun fact: the background music on this website was produced by me :)</li>
                             </ul>
-                            <p>Listen to my work on Spotify, SoundCloud, or YouTube.</p>
                         </div>
                     </div>
                 </div>
@@ -903,7 +912,7 @@
                             <h3>Get In Touch</h3>
                             <p><strong>Email:</strong> tolman.l@northeastern.edu</p>
                             <p><strong>Phone:</strong> (630) 418-6092</p>
-                            <p><strong>LinkedIn:</strong> linkedin.com/in/lucastolman</p>
+                            <p><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/lucastolman" target="_blank" style="color: #ffffff; text-decoration: underline;">linkedin.com/in/lucastolman</a></p>
                             <p><strong>Location:</strong> Boston, MA</p>
                             <div class="time-widget" id="timeWidget" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #cccccc; font-size: 0.9rem;">
                                 local time (est): --:--:-- - loading...
@@ -992,6 +1001,21 @@
 
             // Smooth reveal animations for tabs
             const tabs = document.querySelectorAll('.tab');
+            
+            // Add click/tap functionality for mobile devices
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    // Toggle active class on click/tap
+                    this.classList.toggle('active');
+                    
+                    // Close other tabs on mobile (optional - remove if you want multiple tabs open)
+                    tabs.forEach(otherTab => {
+                        if (otherTab !== this) {
+                            otherTab.classList.remove('active');
+                        }
+                    });
+                });
+            });
             
             // Add intersection observer for scroll-based animations
             const observer = new IntersectionObserver((entries) => {
