@@ -503,11 +503,18 @@
             box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
         }
 
+        /* Active/Open state for mobile */
+        .tab.active .tab-content {
+            max-height: 400px;
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
         .tab.active {
-            transform: translateX(10px);
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
         }
 
         .tab-header {
@@ -548,8 +555,7 @@
             background: rgba(0, 0, 0, 0.2);
         }
 
-        .tab:hover .tab-content,
-        .tab.active .tab-content {
+        .tab:hover .tab-content {
             max-height: 400px;
             padding: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -806,6 +812,19 @@
                 <div class="tab">
                     <div class="tab-header">
                         <div class="tab-icon">+</div>
+                        <div class="tab-title">nuvyo</div>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-content-inner">
+                            <p>currently building...</p>
+                            <p style="margin-top: 1rem;">learn more at nuvyo.io</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab">
+                    <div class="tab-header">
+                        <div class="tab-icon">+</div>
                         <div class="tab-title">learnings</div>
                     </div>
                     <div class="tab-content">
@@ -889,19 +908,6 @@
                     </div>
                 </div>
 
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">nuvyo</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <p>currently building...</p>
-                            <p style="margin-top: 1rem;">learn more at nuvyo.io</p>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="tab">
                     <div class="tab-header">
                         <div class="tab-icon">+</div>
@@ -999,24 +1005,16 @@
             // Initialize time widget
             initializeTimeWidget();
 
-            // Smooth reveal animations for tabs
+            // Add click handlers for tabs (for mobile support)
             const tabs = document.querySelectorAll('.tab');
-            
-            // Add click/tap functionality for mobile devices
             tabs.forEach(tab => {
                 tab.addEventListener('click', function(e) {
-                    // Toggle active class on click/tap
+                    // Toggle the active class for mobile
                     this.classList.toggle('active');
-                    
-                    // Close other tabs on mobile (optional - remove if you want multiple tabs open)
-                    tabs.forEach(otherTab => {
-                        if (otherTab !== this) {
-                            otherTab.classList.remove('active');
-                        }
-                    });
                 });
             });
-            
+
+            // Smooth reveal animations for tabs
             // Add intersection observer for scroll-based animations
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
