@@ -1,2 +1,2 @@
 # portfolio
-my personal website
+my personal website showcasing achievements and creative works
