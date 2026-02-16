@@ -46,43 +46,24 @@ document.addEventListener('DOMContentLoaded', function() {
         mainContent.classList.add('visible');
         initializeMainContent();
         initializeBackgroundAnimations();
+        startBackgroundMusic();
     });
 });
 
-// Music toggle - controlled by button inside the music tab
-function initializeMusicToggle() {
-    const btn = document.getElementById('musicToggleBtn');
+// Start background music - ONLY CALLED WHEN BUTTON IS CLICKED
+function startBackgroundMusic() {
+    console.log('Attempting to start music');
     const audio = document.getElementById('backgroundMusic');
     audio.volume = 0.3;
-    let isPlaying = false;
 
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation(); // prevent tab toggle
-        if (isPlaying) {
-            audio.pause();
-            btn.classList.remove('active');
-        } else {
-            audio.play().catch(err => console.log('Music play failed:', err));
-            btn.classList.add('active');
-        }
-        isPlaying = !isPlaying;
+    audio.play().then(() => {
+        console.log('Background music started successfully');
+    }).catch(error => {
+        console.log('Failed to start music:', error);
     });
 
-    // Particle effect on hover
-    btn.addEventListener('mouseenter', function() {
-        const rect = btn.getBoundingClientRect();
-        for (let i = 0; i < 8; i++) {
-            const p = document.createElement('div');
-            p.className = 'music-btn-particle';
-            p.style.left = (rect.left + rect.width / 2) + 'px';
-            p.style.top = (rect.top + rect.height / 2) + 'px';
-            const angle = (Math.PI * 2 * i) / 8;
-            const dist = 20 + Math.random() * 25;
-            p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
-            p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 800);
-        }
+    audio.addEventListener('error', (e) => {
+        console.log('Background music error - check file path:', e);
     });
 }
 
@@ -90,9 +71,6 @@ function initializeMusicToggle() {
 function initializeMainContent() {
     // Initialize time widget
     initializeTimeWidget();
-
-    // Initialize music toggle button
-    initializeMusicToggle();
 
     // Add click handlers for tabs (for mobile support)
     const tabs = document.querySelectorAll('.tab');
