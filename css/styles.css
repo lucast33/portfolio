@@ -687,6 +687,66 @@ body {
     }
 }
 
+/* Music Toggle Button */
+.music-toggle-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.music-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.7);
+    transform: scale(1.1);
+}
+
+.music-toggle-btn.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 0 24px rgba(255, 255, 255, 0.1);
+}
+
+.music-toggle-btn.active:hover {
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.4), 0 0 32px rgba(255, 255, 255, 0.15);
+}
+
+/* Music button hover particles */
+.music-btn-particle {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    animation: musicParticleBurst 0.8s ease-out forwards;
+}
+
+@keyframes musicParticleBurst {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0);
+        opacity: 0;
+    }
+}
+
 /* Smooth scrolling */
 html {
     scroll-behavior: smooth;
