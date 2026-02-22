@@ -116,7 +116,7 @@ function initializeMainContent() {
             let hue = 0;
             setInterval(() => {
                 hue = (hue + 1) % 360;
-                nameElement.style.background = `linear-gradient(45deg, hsl(${hue}, 0%, 100%), hsl(${hue + 60}, 0%, 80%))`;
+                nameElement.style.background = `linear-gradient(45deg, hsl(${hue}, 0%, 100%), hsl(${hue + 60}, 0%, 100%))`;
                 nameElement.style.webkitBackgroundClip = 'text';
                 nameElement.style.backgroundClip = 'text';
             }, 100);
