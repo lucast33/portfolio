@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         enterScreen.classList.add('hidden');
         mainContent.classList.add('visible');
         initializeMainContent();
-        initializeBackgroundAnimations();
+        initializeSpaceInvaders();
         startBackgroundMusic();
     });
 });
@@ -164,100 +164,205 @@ function initializeTimeWidget() {
     setInterval(updateTime, 1000);
 }
 
-// Background Animations
-function initializeBackgroundAnimations() {
-    const backgroundContainer = document.getElementById('backgroundAnimations');
+// Space Invaders background animation
+function initializeSpaceInvaders() {
+    const container = document.getElementById('backgroundAnimations');
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+    container.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
 
-    // Create sound wave circles
-    function createSoundWave() {
-        const wave = document.createElement('div');
-        wave.className = 'sound-wave';
-        wave.style.left = Math.random() * 100 + '%';
-        wave.style.top = Math.random() * 100 + '%';
-        backgroundContainer.appendChild(wave);
+    let W, H;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', () => { resize(); initFormation(); });
 
-        setTimeout(() => {
-            if (wave.parentNode) {
-                wave.parentNode.removeChild(wave);
+    const PX = 4;           // px per "pixel block"
+    const COLS = 8;
+    const ROWS = 3;
+    const SW = 8 * PX;      // sprite width
+    const SH = 8 * PX;      // sprite height
+    const GAP_X = PX * 3;
+    const GAP_Y = PX * 2;
+    const OP = 0.15;        // base opacity — keep it subtle
+    const STEP_MS_BASE = 700;
+    const STEP_PX = PX * 2;
+    const DROP_PX = PX * 4;
+
+    // Pixel art sprites [frame0, frame1]
+    const SP = {
+        squid: [
+            [[0,0,1,0,0,1,0,0],[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,0,1,1,0,1,0],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[1,0,0,0,0,0,0,1],[0,0,1,0,0,1,0,0]],
+            [[0,0,1,0,0,1,0,0],[1,0,0,1,1,0,0,1],[1,0,1,1,1,1,0,1],[1,1,0,1,1,0,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,1,0,0,1,0,0],[0,1,0,0,0,0,1,0]]
+        ],
+        crab: [
+            [[0,1,0,0,0,0,1,0],[1,0,0,0,0,0,0,1],[1,0,1,1,1,1,0,1],[1,1,1,0,0,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,1,0,0,0,0,1,0],[1,0,0,0,0,0,0,1]],
+            [[0,1,0,0,0,0,1,0],[0,0,1,0,0,1,0,0],[0,1,1,1,1,1,1,0],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[0,1,0,1,1,0,1,0],[1,0,0,0,0,0,0,1],[0,1,0,0,0,0,1,0]]
+        ],
+        octopus: [
+            [[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[0,0,1,0,0,1,0,0],[0,1,0,1,1,0,1,0],[1,0,1,0,0,1,0,1]],
+            [[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[0,1,0,1,1,0,1,0],[1,0,0,0,0,0,0,1],[0,0,1,1,1,1,0,0]]
+        ],
+        player: [[0,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,1,1,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1,1]],
+        ufo:    [[0,0,0,1,1,1,1,1,1,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,0],[1,0,1,0,1,0,1,0,1,0,1,0],[0,1,1,1,1,1,1,1,1,1,1,0]],
+        explode:[[1,0,0,1,0,0,1,0],[0,1,0,1,0,1,0,1],[0,0,0,0,0,0,0,0],[1,1,0,0,0,1,1,0],[0,0,0,0,0,0,0,0],[0,1,0,1,0,1,0,1],[1,0,0,1,0,0,1,0],[0,1,0,0,0,0,1,0]]
+    };
+
+    function drawSprite(pixels, x, y, op) {
+        ctx.fillStyle = `rgba(255,255,255,${op})`;
+        for (let ry = 0; ry < pixels.length; ry++) {
+            for (let rx = 0; rx < pixels[ry].length; rx++) {
+                if (pixels[ry][rx]) ctx.fillRect(~~(x + rx * PX), ~~(y + ry * PX), PX, PX);
             }
-        }, 8000);
+        }
     }
 
-    // Create waveform lines
-    function createWaveform() {
-        const waveform = document.createElement('div');
-        waveform.className = 'waveform';
-        waveform.style.top = Math.random() * 100 + '%';
-        backgroundContainer.appendChild(waveform);
+    // Game state
+    let aliens, formX, formY, formDir, animFrame, stepTimer, stepMs;
+    let player, bullets, alienBullets;
+    let ufo, ufoTimer, shootTimer, alienShootTimer;
 
-        setTimeout(() => {
-            if (waveform.parentNode) {
-                waveform.parentNode.removeChild(waveform);
+    const PLAYER_W = SP.player[0].length * PX;
+    const UFO_W = SP.ufo[0].length * PX;
+
+    function ax(col) { return formX + col * (SW + GAP_X); }
+    function ay(row) { return formY + row * (SH + GAP_Y); }
+
+    function initFormation() {
+        const fw = COLS * (SW + GAP_X) - GAP_X;
+        formX = (W - fw) / 2;
+        formY = H * 0.07;
+        formDir = 1;
+        animFrame = 0;
+        stepTimer = 0;
+        stepMs = STEP_MS_BASE;
+        const types = ['squid', 'crab', 'octopus'];
+        aliens = [];
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                aliens.push({ r, c, type: types[r], alive: true, exploding: false, explodeTimer: 0 });
             }
-        }, 12000);
+        }
+        player = { x: W / 2, y: H - PX * 10, dir: 1, speed: 40 };
+        bullets = [];
+        alienBullets = [];
+        ufo = { active: false, x: 0, y: H * 0.03, dir: 1, speed: 100 };
+        ufoTimer = 10000;
+        shootTimer = 3000 + Math.random() * 2000;
+        alienShootTimer = 5000 + Math.random() * 3000;
     }
 
-    // Create audio visualizer bars
-    function createAudioBars() {
-        const bars = document.createElement('div');
-        bars.className = 'audio-bars';
-        bars.style.left = Math.random() * 80 + '%';
-        bars.style.top = Math.random() * 80 + '%';
+    let lastTs = 0;
+    function loop(ts) {
+        const dt = Math.min(ts - lastTs, 50);
+        lastTs = ts;
+        ctx.clearRect(0, 0, W, H);
 
-        for (let i = 0; i < 7; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'audio-bar';
-            bars.appendChild(bar);
+        const alive = aliens.filter(a => a.alive && !a.exploding);
+
+        // --- Step formation ---
+        stepTimer += dt;
+        if (stepTimer >= stepMs) {
+            stepTimer = 0;
+            animFrame = 1 - animFrame;
+
+            if (alive.length === 0) { initFormation(); requestAnimationFrame(loop); return; }
+
+            const cols = alive.map(a => a.c);
+            const rEdge = ax(Math.max(...cols)) + SW;
+            const lEdge = ax(Math.min(...cols));
+
+            if (formDir === 1 && rEdge + STEP_PX >= W - 20) {
+                formDir = -1; formY += DROP_PX;
+            } else if (formDir === -1 && lEdge - STEP_PX <= 20) {
+                formDir = 1; formY += DROP_PX;
+            } else {
+                formX += formDir * STEP_PX;
+            }
+            stepMs = Math.max(150, STEP_MS_BASE * (alive.length / (COLS * ROWS)));
         }
 
-        backgroundContainer.appendChild(bars);
+        // Reset if formation too low or cleared
+        if (formY + ROWS * (SH + GAP_Y) > H - PX * 15) { initFormation(); requestAnimationFrame(loop); return; }
+        if (alive.length === 0 && !aliens.some(a => a.exploding)) { initFormation(); requestAnimationFrame(loop); return; }
 
-        setTimeout(() => {
-            if (bars.parentNode) {
-                bars.parentNode.removeChild(bars);
+        // --- Draw aliens ---
+        for (const a of aliens) {
+            if (a.exploding) {
+                drawSprite(SP.explode, ax(a.c), ay(a.r), OP * (a.explodeTimer / 600));
+                a.explodeTimer -= dt;
+                if (a.explodeTimer <= 0) { a.alive = false; a.exploding = false; }
+            } else if (a.alive) {
+                drawSprite(SP[a.type][animFrame], ax(a.c), ay(a.r), OP);
             }
-        }, 6000);
+        }
+
+        // --- UFO ---
+        ufoTimer -= dt;
+        if (!ufo.active && ufoTimer <= 0) {
+            ufo.active = true;
+            ufo.dir = Math.random() > 0.5 ? 1 : -1;
+            ufo.x = ufo.dir === 1 ? -UFO_W : W;
+            ufoTimer = 12000 + Math.random() * 8000;
+        }
+        if (ufo.active) {
+            ufo.x += ufo.dir * ufo.speed * (dt / 1000);
+            drawSprite(SP.ufo, ufo.x, ufo.y, OP * 0.85);
+            if (ufo.x > W + UFO_W || ufo.x < -UFO_W) ufo.active = false;
+        }
+
+        // --- Player ---
+        player.x += player.dir * player.speed * (dt / 1000);
+        if (player.x > W - PLAYER_W - 20) player.dir = -1;
+        if (player.x < 20) player.dir = 1;
+        drawSprite(SP.player, player.x - PLAYER_W / 2, player.y, OP * 1.3);
+
+        // --- Player shoots ---
+        shootTimer -= dt;
+        if (shootTimer <= 0) {
+            shootTimer = 3000 + Math.random() * 3000;
+            bullets.push({ x: player.x, y: player.y, active: true });
+        }
+
+        // --- Player bullets ---
+        for (const b of bullets) {
+            if (!b.active) continue;
+            b.y -= 280 * (dt / 1000);
+            if (b.y < 0) { b.active = false; continue; }
+            // draw slim bullet
+            ctx.fillStyle = `rgba(255,255,255,${OP * 1.2})`;
+            ctx.fillRect(~~b.x - 1, ~~b.y, PX - 1, PX * 3);
+            // collision
+            for (const a of aliens) {
+                if (!a.alive || a.exploding) continue;
+                if (b.x >= ax(a.c) && b.x <= ax(a.c) + SW && b.y >= ay(a.r) && b.y <= ay(a.r) + SH) {
+                    b.active = false;
+                    a.exploding = true;
+                    a.explodeTimer = 600;
+                }
+            }
+        }
+        bullets = bullets.filter(b => b.active);
+
+        // --- Alien shoots ---
+        alienShootTimer -= dt;
+        if (alienShootTimer <= 0 && alive.length > 0) {
+            alienShootTimer = 4000 + Math.random() * 4000;
+            const shooter = alive[~~(Math.random() * alive.length)];
+            alienBullets.push({ x: ax(shooter.c) + SW / 2, y: ay(shooter.r) + SH, active: true });
+        }
+        for (const b of alienBullets) {
+            if (!b.active) continue;
+            b.y += 180 * (dt / 1000);
+            if (b.y > H) { b.active = false; continue; }
+            ctx.fillStyle = `rgba(255,255,255,${OP * 0.9})`;
+            ctx.fillRect(~~b.x - 1, ~~b.y, PX - 1, PX * 3);
+        }
+        alienBullets = alienBullets.filter(b => b.active);
+
+        requestAnimationFrame(loop);
     }
 
-    // Create floating particles
-    function createParticle() {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        backgroundContainer.appendChild(particle);
-
-        setTimeout(() => {
-            if (particle.parentNode) {
-                particle.parentNode.removeChild(particle);
-            }
-        }, 15000);
-    }
-
-    // Create sine waves
-    function createSineWave() {
-        const sineWave = document.createElement('div');
-        sineWave.className = 'sine-wave';
-        sineWave.style.top = Math.random() * 100 + '%';
-        backgroundContainer.appendChild(sineWave);
-
-        setTimeout(() => {
-            if (sineWave.parentNode) {
-                sineWave.parentNode.removeChild(sineWave);
-            }
-        }, 6000);
-    }
-
-    // Start animations at different intervals
-    setInterval(createSoundWave, 4000);
-    setInterval(createWaveform, 6000);
-    setInterval(createAudioBars, 8000);
-    setInterval(createParticle, 3000);
-    setInterval(createSineWave, 10000);
-
-    // Create initial animations
-    setTimeout(() => {
-        createSoundWave();
-        createWaveform();
-        createParticle();
-    }, 1000);
+    initFormation();
+    requestAnimationFrame(loop);
 }
