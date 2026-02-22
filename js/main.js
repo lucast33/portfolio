@@ -203,8 +203,23 @@ function initializeSpaceInvaders() {
             [[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[0,0,1,0,0,1,0,0],[0,1,0,1,1,0,1,0],[1,0,1,0,0,1,0,1]],
             [[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[0,1,0,1,1,0,1,0],[1,0,0,0,0,0,0,1],[0,0,1,1,1,1,0,0]]
         ],
-        player: [[0,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,1,1,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1,1]],
-        ufo:    [[0,0,0,1,1,1,1,1,1,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,0],[1,0,1,0,1,0,1,0,1,0,1,0],[0,1,1,1,1,1,1,1,1,1,1,0]],
+        player: [
+            [0,0,0,0,0,0,1,0,0,0,0,0,0],
+            [0,0,0,0,0,1,1,1,0,0,0,0,0],
+            [0,0,0,0,1,1,1,1,1,0,0,0,0],
+            [0,0,0,0,1,1,1,1,1,0,0,0,0],
+            [0,0,0,1,1,0,1,0,1,1,0,0,0],
+            [0,0,1,1,1,1,1,1,1,1,1,0,0],
+            [0,1,1,1,0,1,1,1,0,1,1,1,0],
+            [1,1,1,0,0,1,1,1,0,0,1,1,1],
+            [1,1,0,0,1,0,1,0,1,0,0,1,1],
+            [1,0,0,0,1,0,0,0,1,0,0,0,1],
+            [0,0,0,0,1,0,0,0,1,0,0,0,0],
+            [0,0,0,0,0,1,0,1,0,0,0,0,0],
+            [0,0,0,0,0,0,1,0,0,0,0,0,0]
+        ],
+        ufo:     [[0,0,0,1,1,1,1,1,1,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,0],[1,0,1,0,1,0,1,0,1,0,1,0],[0,1,1,1,1,1,1,1,1,1,1,0]],
+        fighter: [[0,0,0,1,0,0,0,0,1,0,0,0],[0,0,1,1,1,0,0,1,1,1,0,0],[0,1,1,1,1,1,1,1,1,1,1,0],[1,1,0,1,1,1,1,1,1,0,1,1],[0,1,1,1,1,1,1,1,1,1,1,0],[0,0,0,1,0,0,0,0,1,0,0,0]],
         explode:[[1,0,0,1,0,0,1,0],[0,1,0,1,0,1,0,1],[0,0,0,0,0,0,0,0],[1,1,0,0,0,1,1,0],[0,0,0,0,0,0,0,0],[0,1,0,1,0,1,0,1],[1,0,0,1,0,0,1,0],[0,1,0,0,0,0,1,0]]
     };
 
@@ -220,9 +235,10 @@ function initializeSpaceInvaders() {
     // Game state
     let aliens, formX, formY, formDir, animFrame, stepTimer, stepMs;
     let player, bullets, alienBullets;
-    let ufo, ufoTimer, shootTimer, alienShootTimer;
+    let bgShips, bgShipTimer, shootTimer, alienShootTimer;
 
     const PLAYER_W = SP.player[0].length * PX;
+    const PLAYER_H = SP.player.length * PX;
     const UFO_W = SP.ufo[0].length * PX;
 
     function ax(col) { return formX + col * (SW + GAP_X); }
@@ -243,13 +259,13 @@ function initializeSpaceInvaders() {
                 aliens.push({ r, c, type: types[r], alive: true, exploding: false, explodeTimer: 0 });
             }
         }
-        player = { x: W / 2, y: H - PX * 10, dir: 1, speed: 40 };
+        player = { x: W / 2, y: H - PLAYER_H - PX * 2, dir: 1, speed: 65 };
         bullets = [];
         alienBullets = [];
-        ufo = { active: false, x: 0, y: H * 0.03, dir: 1, speed: 100 };
-        ufoTimer = 10000;
-        shootTimer = 3000 + Math.random() * 2000;
-        alienShootTimer = 5000 + Math.random() * 3000;
+        bgShips = [];
+        bgShipTimer = 1500 + Math.random() * 1500;
+        shootTimer = 1000 + Math.random() * 1000;
+        alienShootTimer = 3000 + Math.random() * 2000;
     }
 
     let lastTs = 0;
@@ -297,19 +313,22 @@ function initializeSpaceInvaders() {
             }
         }
 
-        // --- UFO ---
-        ufoTimer -= dt;
-        if (!ufo.active && ufoTimer <= 0) {
-            ufo.active = true;
-            ufo.dir = Math.random() > 0.5 ? 1 : -1;
-            ufo.x = ufo.dir === 1 ? -UFO_W : W;
-            ufoTimer = 12000 + Math.random() * 8000;
+        // --- Background ships ---
+        bgShipTimer -= dt;
+        if (bgShipTimer <= 0 && bgShips.length < 5) {
+            bgShipTimer = 2000 + Math.random() * 2500;
+            const dir = Math.random() > 0.5 ? 1 : -1;
+            const type = Math.random() > 0.45 ? 'ufo' : 'fighter';
+            const sw = SP[type][0].length * PX;
+            const yZones = [H * 0.03, H * 0.42, H * 0.57, H * 0.70, H * 0.82];
+            const y = yZones[~~(Math.random() * yZones.length)] + (Math.random() - 0.5) * 16;
+            bgShips.push({ x: dir === 1 ? -sw : W + sw, y, dir, speed: 65 + Math.random() * 90, type });
         }
-        if (ufo.active) {
-            ufo.x += ufo.dir * ufo.speed * (dt / 1000);
-            drawSprite(SP.ufo, ufo.x, ufo.y, OP * 0.85);
-            if (ufo.x > W + UFO_W || ufo.x < -UFO_W) ufo.active = false;
+        for (const s of bgShips) {
+            s.x += s.dir * s.speed * (dt / 1000);
+            drawSprite(SP[s.type], s.x, s.y, OP * 0.85);
         }
+        bgShips = bgShips.filter(s => { const sw = SP[s.type][0].length * PX; return s.x < W + sw * 2 && s.x > -sw * 2; });
 
         // --- Player ---
         player.x += player.dir * player.speed * (dt / 1000);
@@ -320,7 +339,7 @@ function initializeSpaceInvaders() {
         // --- Player shoots ---
         shootTimer -= dt;
         if (shootTimer <= 0) {
-            shootTimer = 3000 + Math.random() * 3000;
+            shootTimer = 1000 + Math.random() * 1200;
             bullets.push({ x: player.x, y: player.y, active: true });
         }
 
