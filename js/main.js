@@ -235,6 +235,7 @@ function initializeSpaceInvaders() {
     let aliens, formX, formY, formDir, animFrame, stepTimer, stepMs;
     let player, bullets, alienBullets;
     let bgShips, bgShipTimer, shootTimer, alienShootTimer;
+    let victoryTimer, fireworks, fireworkSpawnTimer;
 
     const PLAYER_W = SP.player[0].length * PX;
     const PLAYER_H = SP.player.length * PX;
@@ -265,6 +266,9 @@ function initializeSpaceInvaders() {
         bgShipTimer = 1500 + Math.random() * 1500;
         shootTimer = 1000 + Math.random() * 1000;
         alienShootTimer = 3000 + Math.random() * 2000;
+        victoryTimer = 0;
+        fireworks = [];
+        fireworkSpawnTimer = 0;
     }
 
     let lastTs = 0;
@@ -275,31 +279,54 @@ function initializeSpaceInvaders() {
 
         const alive = aliens.filter(a => a.alive && !a.exploding);
 
-        // --- Step formation ---
-        stepTimer += dt;
-        if (stepTimer >= stepMs) {
-            stepTimer = 0;
-            animFrame = 1 - animFrame;
+        // --- Step formation (skip during victory) ---
+        if (victoryTimer === 0) {
+            stepTimer += dt;
+            if (stepTimer >= stepMs && alive.length > 0) {
+                stepTimer = 0;
+                animFrame = 1 - animFrame;
 
-            if (alive.length === 0) { initFormation(); requestAnimationFrame(loop); return; }
+                const cols = alive.map(a => a.c);
+                const rEdge = ax(Math.max(...cols)) + SW;
+                const lEdge = ax(Math.min(...cols));
 
-            const cols = alive.map(a => a.c);
-            const rEdge = ax(Math.max(...cols)) + SW;
-            const lEdge = ax(Math.min(...cols));
-
-            if (formDir === 1 && rEdge + STEP_PX >= W - 20) {
-                formDir = -1; formY += DROP_PX;
-            } else if (formDir === -1 && lEdge - STEP_PX <= 20) {
-                formDir = 1; formY += DROP_PX;
-            } else {
-                formX += formDir * STEP_PX;
+                if (formDir === 1 && rEdge + STEP_PX >= W - 20) {
+                    formDir = -1; formY += DROP_PX;
+                } else if (formDir === -1 && lEdge - STEP_PX <= 20) {
+                    formDir = 1; formY += DROP_PX;
+                } else {
+                    formX += formDir * STEP_PX;
+                }
+                stepMs = Math.max(150, STEP_MS_BASE * (alive.length / (COLS * ROWS)));
             }
-            stepMs = Math.max(150, STEP_MS_BASE * (alive.length / (COLS * ROWS)));
+            // Formation reached bottom
+            if (formY + ROWS * (SH + GAP_Y) > H - PX * 15) { initFormation(); requestAnimationFrame(loop); return; }
         }
 
-        // Reset if formation too low or cleared
-        if (formY + ROWS * (SH + GAP_Y) > H - PX * 15) { initFormation(); requestAnimationFrame(loop); return; }
-        if (alive.length === 0 && !aliens.some(a => a.exploding)) { initFormation(); requestAnimationFrame(loop); return; }
+        // --- Victory trigger ---
+        if (alive.length === 0 && !aliens.some(a => a.exploding) && victoryTimer === 0) {
+            victoryTimer = 3000 + Math.random() * 2000;
+            fireworkSpawnTimer = 150;
+        }
+        if (victoryTimer > 0) {
+            victoryTimer -= dt;
+            fireworkSpawnTimer -= dt;
+            if (fireworkSpawnTimer <= 0) {
+                fireworkSpawnTimer = 500 + Math.random() * 500;
+                const fx = 80 + Math.random() * (W - 160);
+                const fy = H * 0.08 + Math.random() * H * 0.65;
+                for (let i = 0; i < 10; i++) {
+                    const angle = (i / 10) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+                    const spd = 55 + Math.random() * 65;
+                    fireworks.push({ x: fx, y: fy, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, life: 1, decay: 0.7 + Math.random() * 0.5 });
+                }
+            }
+            if (victoryTimer <= 0) {
+                initFormation();
+                requestAnimationFrame(loop);
+                return;
+            }
+        }
 
         // --- Draw aliens ---
         for (const a of aliens) {
@@ -311,6 +338,18 @@ function initializeSpaceInvaders() {
                 drawSprite(SP[a.type][animFrame], ax(a.c), ay(a.r), OP);
             }
         }
+
+        // --- Fireworks ---
+        for (const f of fireworks) {
+            f.x += f.vx * (dt / 1000);
+            f.y += f.vy * (dt / 1000);
+            f.vy += 45 * (dt / 1000);   // pixel gravity
+            f.life -= f.decay * (dt / 1000);
+            if (f.life <= 0) continue;
+            ctx.fillStyle = `rgba(255,255,255,${(f.life * OP * 2.5).toFixed(3)})`;
+            ctx.fillRect(~~f.x, ~~f.y, PX, PX);
+        }
+        if (fireworks.length > 0) fireworks = fireworks.filter(f => f.life > 0);
 
         // --- Background ships ---
         bgShipTimer -= dt;
@@ -329,32 +368,33 @@ function initializeSpaceInvaders() {
         }
         bgShips = bgShips.filter(s => { const sw = SP[s.type][0].length * PX; return s.x < W + sw * 2 && s.x > -sw * 2; });
 
-        // --- Player (AI-style movement) ---
-        player.thinkTimer -= dt;
-        if (player.thinkTimer <= 0) {
-            player.thinkTimer = 400 + Math.random() * 1100;
-            player.speed = 50 + Math.random() * 130;
-            if (alive.length > 0 && Math.random() > 0.25) {
-                const t = alive[~~(Math.random() * alive.length)];
-                player.targetX = ax(t.c) + SW / 2 + (Math.random() - 0.5) * SW * 3;
-            } else {
-                player.targetX = 60 + Math.random() * (W - 120);
+        // --- Player (AI-style movement, paused during victory) ---
+        if (victoryTimer === 0) {
+            player.thinkTimer -= dt;
+            if (player.thinkTimer <= 0) {
+                player.thinkTimer = 400 + Math.random() * 1100;
+                player.speed = 50 + Math.random() * 130;
+                if (alive.length > 0 && Math.random() > 0.25) {
+                    const t = alive[~~(Math.random() * alive.length)];
+                    player.targetX = ax(t.c) + SW / 2 + (Math.random() - 0.5) * SW * 3;
+                } else {
+                    player.targetX = 60 + Math.random() * (W - 120);
+                }
+                player.targetX = Math.max(60, Math.min(W - 60, player.targetX));
             }
-            player.targetX = Math.max(60, Math.min(W - 60, player.targetX));
-        }
-        const pdx = player.targetX - player.x;
-        if (Math.abs(pdx) > 1) {
-            const step = Math.sign(pdx) * player.speed * (dt / 1000);
-            player.x += Math.abs(step) < Math.abs(pdx) ? step : pdx;
+            const pdx = player.targetX - player.x;
+            if (Math.abs(pdx) > 1) {
+                const step = Math.sign(pdx) * player.speed * (dt / 1000);
+                player.x += Math.abs(step) < Math.abs(pdx) ? step : pdx;
+            }
+            // --- Player shoots ---
+            shootTimer -= dt;
+            if (shootTimer <= 0) {
+                shootTimer = 400 + Math.random() * 2200;
+                bullets.push({ x: player.x, y: player.y, active: true });
+            }
         }
         drawSprite(SP.player, player.x - PLAYER_W / 2, player.y, OP * 1.3);
-
-        // --- Player shoots ---
-        shootTimer -= dt;
-        if (shootTimer <= 0) {
-            shootTimer = 400 + Math.random() * 2200;
-            bullets.push({ x: player.x, y: player.y, active: true });
-        }
 
         // --- Player bullets ---
         for (const b of bullets) {
