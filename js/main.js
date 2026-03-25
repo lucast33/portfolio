@@ -1,6 +1,3 @@
-// Prevent any accidental music autoplay
-document.getElementById('backgroundMusic').pause();
-
 // Loading Animation
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded - starting sequence');
