@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
         enterScreen.classList.add('hidden');
         mainContent.classList.add('visible');
         initializeMainContent();
-        initializeSpaceInvaders();
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (!isIOS) initializeSpaceInvaders();
         startBackgroundMusic();
     });
 });
@@ -256,7 +258,7 @@ function initializeSpaceInvaders() {
                 aliens.push({ r, c, type: types[r], alive: true, exploding: false, explodeTimer: 0 });
             }
         }
-        player = { x: W / 2, y: H - PLAYER_H - PX * 2, dir: 1, speed: 65 };
+        player = { x: W / 2, y: H - PLAYER_H - PX * 2, speed: 0, targetX: W / 2, thinkTimer: 300 };
         bullets = [];
         alienBullets = [];
         bgShips = [];
@@ -327,16 +329,30 @@ function initializeSpaceInvaders() {
         }
         bgShips = bgShips.filter(s => { const sw = SP[s.type][0].length * PX; return s.x < W + sw * 2 && s.x > -sw * 2; });
 
-        // --- Player ---
-        player.x += player.dir * player.speed * (dt / 1000);
-        if (player.x > W - PLAYER_W - 20) player.dir = -1;
-        if (player.x < 20) player.dir = 1;
+        // --- Player (AI-style movement) ---
+        player.thinkTimer -= dt;
+        if (player.thinkTimer <= 0) {
+            player.thinkTimer = 400 + Math.random() * 1100;
+            player.speed = 50 + Math.random() * 130;
+            if (alive.length > 0 && Math.random() > 0.25) {
+                const t = alive[~~(Math.random() * alive.length)];
+                player.targetX = ax(t.c) + SW / 2 + (Math.random() - 0.5) * SW * 3;
+            } else {
+                player.targetX = 60 + Math.random() * (W - 120);
+            }
+            player.targetX = Math.max(60, Math.min(W - 60, player.targetX));
+        }
+        const pdx = player.targetX - player.x;
+        if (Math.abs(pdx) > 1) {
+            const step = Math.sign(pdx) * player.speed * (dt / 1000);
+            player.x += Math.abs(step) < Math.abs(pdx) ? step : pdx;
+        }
         drawSprite(SP.player, player.x - PLAYER_W / 2, player.y, OP * 1.3);
 
         // --- Player shoots ---
         shootTimer -= dt;
         if (shootTimer <= 0) {
-            shootTimer = 1000 + Math.random() * 1200;
+            shootTimer = 400 + Math.random() * 2200;
             bullets.push({ x: player.x, y: player.y, active: true });
         }
 
