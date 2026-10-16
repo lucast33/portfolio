@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>About · Lucas Tolman</title>
+  <meta name="description" content="About Lucas Tolman: data science, marketing, AI and music.">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stage.css">
+  <script>document.documentElement.classList.add('js')</script>
+  <script src="space-invaders-hero.js" defer></script>
+  <script src="assets/portrait.js" defer></script>
+  <script src="stage.js" defer></script>
+</head>
+<body>
+<div class="crt">
+  <header class="hud">
+    <div class="stage-nav">
+      <button class="stage-toggle" type="button" aria-expanded="false" aria-controls="stage-list"><span class="cursor" aria-hidden="true"></span>STAGE SELECT</button>
+      <nav class="dropdown pixel-frame" id="stage-list" aria-label="Stages" hidden>
+        <ul>
+          <li><a href="about.html" aria-current="page"><span class="cursor" aria-hidden="true"></span><span>ABOUT</span></a></li>
+          <li><a href="experience.html" data-nav><span class="cursor" aria-hidden="true"></span><span>EXPERIENCE</span></a></li>
+          <li><a href="contact.html" data-nav><span class="cursor" aria-hidden="true"></span><span>CONTACT</span></a></li>
+          <li class="home"><a href="index.html" data-nav><span class="cursor" aria-hidden="true"></span><span>HOME</span></a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="score"><span>SCORE</span><span data-score>0</span></div>
+    <div class="score hi"><span>HI-SCORE</span><span data-hi>0</span></div>
+  </header>
+  <div class="ufo-lane" aria-hidden="true"></div>
+
+  <main class="screen" id="main">
+    <header class="title-card">
+      <span class="sprite squid" data-pts="30" aria-hidden="true"></span>
+      <h1>ABOUT</h1>
+    </header>
+
+    <!-- PLACEHOLDER COPY: drafted from the old portfolio. Edit the text freely; the typing picks up whatever is here. -->
+
+    <div class="console" data-tw aria-hidden="true">
+      <p class="cmd" data-speed="human">LOAD "PLAYER_1.SAV"</p>
+      <p>READING SAVE DATA<span data-speed="slow"> .....</span> OK</p>
+    </div>
+
+    <section class="profile block">
+      <figure class="portrait" data-tw>
+        <canvas class="pixel-frame" data-run="portrait" width="120" height="140" role="img"
+          aria-label="1-bit dithered portrait of Lucas Tolman smiling in front of a tiled wall"></canvas>
+        <figcaption>P1 <span class="sprite mini" aria-hidden="true"></span> READY</figcaption>
+      </figure>
+
+      <div data-tw>
+        <h2 class="sec">PLAYER DATA</h2>
+        <dl class="kv" data-leaders>
+          <div><dt>NAME</dt><dd>LUCAS TOLMAN</dd></div>
+          <div><dt>MAJOR</dt><dd>DATA SCIENCE + BUSINESS</dd></div>
+          <div><dt>CLASS</dt><dd>NORTHEASTERN '26</dd></div>
+          <div><dt>LOCATION</dt><dd>BOSTON, MA</dd></div>
+          <div><dt>ROLE</dt><dd>MARKETING x AI</dd></div>
+          <div><dt>HOBBY</dt><dd>DJ / PRODUCER</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="block" data-tw>
+      <h2 class="sec">BIO.TXT</h2>
+      <p class="prose">I build at the intersection of strategic operations, AI product management, and growth marketing. I studied Data Science and Business Administration at Northeastern, concentrating in marketing, spending my freshman year at their London campus.</p>
+      <p class="prose">I currently work at ServiceNow, focusing on AI product strategy and enablement for marketing. My team is building the destination for AI-native marketers through transformation efforts. Outside of work, music is my passion: I've been producing and DJing for 8+ years, and it fuels the creative side I bring to my professional work.</p>
+    </section>
+
+    <p class="prompt" data-tw aria-hidden="true">&gt; <span class="idle-caret"></span></p>
+  </main>
+
+</div>
+</body>
+</html>

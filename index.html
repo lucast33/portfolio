@@ -1,226 +1,321 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/styles.css">
-    <title>Your Portfolio</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lucas Tolman</title>
+  <meta name="description" content="Portfolio of Lucas Tolman.">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="space-invaders-hero.js" defer></script>
+  <style>
+    :root {
+      --ink: #fff;
+      --paper: #000;
+      --px: 4px;                 /* size of one "pixel" in the UI chrome */
+      --cursor: none;            /* filled in with the fighter sprite by script */
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+    html, body { background: var(--paper); color: var(--ink); }
+    body {
+      font-family: 'Press Start 2P', ui-monospace, Menlo, Consolas, monospace;
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+    }
+    button { font: inherit; color: inherit; }
+
+    .cabinet {
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      grid-template-rows: minmax(320px, 1fr) auto;
+    }
+    space-invaders-hero { min-height: 320px; }
+
+    /* ── pixel-art frame: square edges with the corners notched out ── */
+    .pixel-frame {
+      background: var(--paper);
+      box-shadow:
+        0 calc(-1 * var(--px)) 0 0 var(--ink),
+        0 var(--px) 0 0 var(--ink),
+        calc(-1 * var(--px)) 0 0 0 var(--ink),
+        var(--px) 0 0 0 var(--ink);
+    }
+
+    /* the fighter, turned to point right, used as a cursor */
+    .cursor {
+      width: 17px;
+      height: 19px;
+      flex: none;
+      margin: 0 1px;
+      background: var(--cursor) center / 17px 19px no-repeat;
+      image-rendering: pixelated;
+      transform: rotate(90deg);
+    }
+
+    /* ── footer: the one button ── */
+    .start {
+      display: flex;
+      justify-content: center;
+      padding: 22px 16px max(30px, env(safe-area-inset-bottom));
+    }
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 22px 16px 16px;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      border: 0;
+      cursor: pointer;
+    }
+    .start-btn .cursor { animation: blink 1s steps(1, end) infinite; }
+    .start-btn:focus { outline: none; }
+    .start-btn:focus-visible { background: var(--ink); color: var(--paper); }
+    .start-btn:focus-visible .cursor { filter: invert(1); animation: none; }
+    @media (hover: hover) {
+      .start-btn:hover { background: var(--ink); color: var(--paper); }
+      .start-btn:hover .cursor { filter: invert(1); animation: none; }
+    }
+
+    /* ── stage-select menu ── */
+    .menu {
+      margin: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      max-width: calc(100vw - 32px);
+      overflow: visible;
+    }
+    .menu::backdrop {
+      /* 1-bit 50% dither so the game shows through */
+      background-color: transparent;
+      background-image: conic-gradient(#000 25%, transparent 0 50%, #000 0 75%, transparent 0);
+      background-size: 4px 4px;
+    }
+    .menu[open] .panel { animation: boot 0.24s steps(6, end) both; }
+
+    .panel {
+      width: min(380px, calc(100vw - 40px));
+      padding: 26px 22px 22px;
+    }
+    .menu-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      margin-bottom: 26px;
+    }
+    .menu-head h2 {
+      font-size: 14px;
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .menu-head .alien {
+      width: 22px;
+      height: 16px;
+      flex: none;
+      background: var(--crab) center / 22px 16px no-repeat;
+      image-rendering: pixelated;
+    }
+    .close {
+      position: absolute;
+      top: -16px;
+      right: -12px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: none;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .close:hover, .close:focus-visible { outline: none; background: var(--ink); color: var(--paper); }
+
+    .stages { list-style: none; padding: 0; display: grid; gap: 6px; }
+    .stages li { opacity: 0; }
+    .menu[open] .stages li { animation: appear 0s linear forwards; }
+    .menu[open] .stages li:nth-child(1) { animation-delay: 0.26s; }
+    .menu[open] .stages li:nth-child(2) { animation-delay: 0.34s; }
+    .menu[open] .stages li:nth-child(3) { animation-delay: 0.42s; }
+
+    /* word dead-centre, a fighter on each side pointing in at it */
+    .stages a {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 18px;
+      padding: 15px 10px;
+      font-size: 14px;
+      line-height: 1;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      outline: none;
+    }
+    .stages .cursor { visibility: hidden; justify-self: end; }
+    .stages .cursor.r { justify-self: start; transform: rotate(-90deg); }
+    .stages a.is-active .cursor { visibility: visible; animation: blink 0.8s steps(1, end) infinite; }
+    .stages a.is-chosen { animation: chosen 0.09s steps(1, end) infinite; }
+    .stages a.is-chosen .cursor { animation: none; }
+
+    .hint {
+      margin-top: 22px;
+      font-size: 8px;
+      line-height: 1.8;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    @media (hover: none) { .hint { display: none; } }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    @keyframes blink { 50% { visibility: hidden; } }
+    @keyframes appear { to { opacity: 1; } }
+    @keyframes boot {
+      from { clip-path: inset(48% 0 48% 0); }
+      to   { clip-path: inset(-8px -8px -8px -8px); }
+    }
+    @keyframes chosen {
+      0%   { background: var(--ink); color: var(--paper); }
+      50%  { background: transparent; color: var(--ink); }
+    }
+
+    @media (max-width: 520px) {
+      .start-btn { font-size: 11px; }
+      .stages a { font-size: 12px; padding: 14px 6px; gap: 14px; }
+      .menu-head h2 { font-size: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .start-btn .cursor, .stages a.is-active .cursor { animation: none; }
+      .menu[open] .panel { animation: none; }
+      .menu[open] .stages li { animation-delay: 0s; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Background Animations -->
-    <div class="background-animations" id="backgroundAnimations"></div>
+  <main class="cabinet">
+    <h1 class="sr-only">Lucas Tolman</h1>
 
-    <!-- Background Music - NO AUTOPLAY -->
-    <audio id="backgroundMusic" loop preload="none">
-        <source src="./portfoliomix.wav" type="audio/wav">
-    </audio>
-    
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-container">
-            <div class="loading-text">loading portfolio...</div>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loadingBar"></div>
-            </div>
-            <div class="loading-percentage" id="loadingPercentage">0%</div>
-        </div>
+    <space-invaders-hero name="Lucas Tolman"></space-invaders-hero>
+
+    <div class="start">
+      <button class="start-btn pixel-frame" type="button" aria-haspopup="dialog" aria-controls="stage-menu">
+        <span class="cursor" aria-hidden="true"></span>
+        SELECT STAGE
+      </button>
     </div>
+  </main>
 
-    <!-- Enter Screen -->
-    <div class="enter-screen" id="enterScreen">
-        <div class="enter-container">
-            <h1 class="enter-title">welcome</h1>
-            <p class="enter-subtitle">press the button below to proceed :)</p>
-            <button class="enter-button" id="enterButton">enter portfolio</button>
-        </div>
+  <dialog class="menu" id="stage-menu" aria-labelledby="stage-title">
+    <div class="panel pixel-frame">
+      <div class="menu-head">
+        <span class="alien" aria-hidden="true"></span>
+        <h2 id="stage-title">SELECT STAGE</h2>
+        <span class="alien" aria-hidden="true"></span>
+        <button class="close" type="button" aria-label="Close menu">X</button>
+      </div>
+
+      <ol class="stages">
+        <li><a href="about.html" autofocus><span class="cursor" aria-hidden="true"></span><span class="name">ABOUT</span><span class="cursor r" aria-hidden="true"></span></a></li>
+        <li><a href="experience.html"><span class="cursor" aria-hidden="true"></span><span class="name">EXPERIENCE</span><span class="cursor r" aria-hidden="true"></span></a></li>
+        <li><a href="contact.html"><span class="cursor" aria-hidden="true"></span><span class="name">CONTACT</span><span class="cursor r" aria-hidden="true"></span></a></li>
+      </ol>
+
+      <p class="hint" aria-hidden="true">UP/DOWN MOVE &nbsp; ENTER SELECT &nbsp; ESC EXIT</p>
     </div>
+  </dialog>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="container">
-            <!-- Header Section -->
-            <div class="header">
-                <div class="profile-photo">
-                    <img src="./profile-photo.jpg" alt="Lucas Tolman" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="header-content">
-                    <div class="name-section">
-                        <h1 class="name">lucas tolman</h1>
-                    </div>
-                    <div class="description-section">
-                        <div class="description">
-                            <p>building tomorrow's solutions at the intersection of business strategy, product marketing, artificial intelligence, and creative innovation</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <noscript>
+    <nav style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:0 16px 32px;font-size:11px">
+      <a style="color:#fff" href="about.html">ABOUT</a>
+      <a style="color:#fff" href="experience.html">EXPERIENCE</a>
+      <a style="color:#fff" href="contact.html">CONTACT</a>
+    </nav>
+  </noscript>
 
-            <!-- Tabs Section -->
-            <div class="tabs-container">
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">experiences</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <h3>Professional Experience</h3>
+  <script>
+    (() => {
+      const openBtn = document.querySelector('.start-btn');
+      const menu = document.getElementById('stage-menu');
+      const closeBtn = menu.querySelector('.close');
+      const links = [...menu.querySelectorAll('.stages a')];
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+      let leaving = false;
 
-                            <p><strong><a href="https://www.servicenow.com/" target="_blank" style="color: #ffffff; text-decoration: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">ServiceNow</a> - Marketing Associate Intern, Analytics & AI</strong></p>
-                            <p><strong>Duration:</strong> Jun 2025 - Sep 2025 | Waltham, MA</p>
-                            <ul>
-                                <li>Architected AI-powered analytics frameworks (Power BI Smart Narrative) to unify key metric insights reporting and enhance dashboard accessibility for stakeholders</li>
-                                <li>Designed and deployed Agentic AI with Copilot Studio, including an autonomized agent that let stakeholders prompt queries and instantly match FAQ answers</li>
-                                <li>Led cross-functional project management and UX/AI research to identify user personas, reveal dashboard pain points, and recommend key enhancements</li>
-                                <li>Produced an AI-enablement tutorial video for Copilot Studio using Adobe, reaching 5+ teams with 100+ views</li>
-                            </ul>
+      // reuse the game's own sprites for the cursor and title aliens
+      customElements.whenDefined('space-invaders-hero').then((Hero) => {
+        if (!Hero.spriteURL) return;
+        document.documentElement.style.setProperty('--cursor', `url(${Hero.spriteURL('ship')})`);
+        document.documentElement.style.setProperty('--crab', `url(${Hero.spriteURL('crab')})`);
+      });
 
-                            <p style="margin-top: 1.5rem;"><strong><a href="https://www.servicenow.com/" target="_blank" style="color: #ffffff; text-decoration: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">ServiceNow</a> - Product & Solutions Marketing Co-op (IT Service Management)</strong></p>
-                            <p><strong>Duration:</strong> Jul 2024 - Dec 2024 | Waltham, MA</p>
-                            <ul>
-                                <li>Created competitive analysis decks on top GenAI competitors with Excel, utilized and presented to determine key market segmentation factors</li>
-                                <li>Optimized team's document library to streamline workflows using Power BI and Excel, saving nearly $250,000 in budget and 1600 labor hours</li>
-                                <li>Developed story messaging first-call deck for new product DEX, presented to 400+ attendees at Toronto and Dallas World Forums</li>
-                            </ul>
+      const activate = (a) => {
+        links.forEach((l) => l.classList.toggle('is-active', l === a));
+        if (document.activeElement !== a) a.focus({ preventScroll: true });
+      };
 
-                            <p style="margin-top: 1.5rem;"><strong><a href="https://risekit.co/" target="_blank" style="color: #ffffff; text-decoration: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">RiseKit</a> - Business and Quality Analyst</strong></p>
-                            <p><strong>Duration:</strong> May 2023 - Jun 2024 | Chicago, IL</p>
-                            <ul>
-                                <li>Led the Quality Assurance (QA) process, eliminating 100+ software-related bugs, saving 1000+ hours of labor</li>
-                                <li>Designed test scripts for QA-related processes, targeting critical product features to optimize deployment process</li>
-                                <li>Worked with customer data and performed analyses to draw insights on marketing and business transformation</li>
-                            </ul>
+      const open = () => {
+        if (menu.open) return;
+        leaving = false;
+        links.forEach((l) => l.classList.remove('is-chosen'));
+        menu.showModal();
+        activate(links[0]);
+      };
 
-                            <p style="margin-top: 1.5rem;"><strong>VICIOUS VISION Clothing Co. - Founder</strong></p>
-                            <p><strong>Duration:</strong> Jul 2020 - Jul 2023 | Chicago, IL</p>
-                            <ul>
-                                <li>Built and managed an online clothing brand, generating $7,000+ in revenue with 100+ customers over 6 releases</li>
-                                <li>Constructed shoppable website, managed social media, created digital images, partnered with manufacturers, collaborated with nonprofits, and calculated financials</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+      openBtn.addEventListener('click', open);
+      closeBtn.addEventListener('click', () => menu.close());
 
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">learnings</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <h3>Northeastern University</h3>
-                            <p><strong>Degree:</strong> Data Science and Business Administration, B.S.</p>
-                            <p><strong>Expected Graduation:</strong> May 2026</p>
-                            <p><strong>Concentrated Study:</strong> Marketing</p>
-                            <p><strong>Notable Coursework:</strong></p>
-                            <ul>
-                                <li>Advanced Programming with Data</li>
-                                <li>Database Design</li>
-                                <li>Marketing Management</li>
-                                <li>Machine Learning & Data Mining</li>
-                                <li>Business Value with AI & Tech.</li>
-                                <li>International Business</li>
-                                <li>Information Visualization</li>
-                            </ul>
-                            <p><strong>Activities & Awards:</strong></p>
-                            <ul>
-                                <li>Perplexity AI Campus Partner</li>
-                                <li>Dean's List</li>
-                                <li>Director of Risk Management Delta Tau Delta Fraternity</li>
-                                <li>B+ Foundation Team Captain</li>
-                                <li>Music Production Club</li>
-                            </ul>
-                            <h3 style="margin-top: 2rem;">International Study Abroad</h3>
-                            <p>Northeastern London Campus | Sep 2022 - May 2023</p>
-                        </div>
-                    </div>
-                </div>
+      // click on the dithered backdrop closes the menu
+      menu.addEventListener('click', (e) => { if (e.target === menu) menu.close(); });
 
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">projects</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <h3>Personal & Academic Projects</h3>
+      links.forEach((a) => {
+        a.addEventListener('focus', () => activate(a));
+        a.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') activate(a); });
+        a.addEventListener('click', (e) => {
+          if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;  // let new-tab clicks through
+          e.preventDefault();
+          if (leaving) return;
+          leaving = true;
+          activate(a);
+          a.classList.add('is-chosen');
+          setTimeout(() => { location.href = a.href; }, reduced.matches ? 0 : 520);
+        });
+      });
 
-                            <p><strong>Roamify - Travel Database</strong></p>
-                            <p><strong>Technologies:</strong> Python, MySQL, Git, REST API, Docker, Flask</p>
-                            <p>A travel booking site that takes hotel price, transportation efficiency, and travel preferences into account in order to determine the best travel option for a customer. Key features include:</p>
-                            <ul>
-                                <li>Utilizes an API that has data on hotels, flights, taxis, prices, and filtering</li>
-                                <li>Website will include a filtering system that allows you to filter by location preference, as well as general price ranges for the entire trip or specific segments</li>
-                                <li>Website is easily accessible to all types of customers, ranging from single travelers to families, or business partners</li>
-                            </ul>
+      menu.addEventListener('keydown', (e) => {
+        const i = links.indexOf(document.activeElement);
+        const step = { ArrowDown: 1, ArrowRight: 1, s: 1, ArrowUp: -1, ArrowLeft: -1, w: -1 }[e.key];
+        if (step) {
+          e.preventDefault();
+          activate(links[(Math.max(i, 0) + step + links.length) % links.length]);
+        } else if (e.key === ' ' && i >= 0) {
+          e.preventDefault();
+          links[i].click();
+        }
+      });
 
-                            <p style="margin-top: 1.5rem;"><strong>Visual Analysis of Political Affiliation vs. Vaccine Distribution</strong></p>
-                            <p><strong>Technologies:</strong> Tableau, Java, Python, Altair, GIS</p>
-                            <p>Analyzed the relationship between political affiliation and COVID-19 vaccine distribution across U.S. counties using a merged dataset, advanced statistical modeling, and interactive visualizations to uncover public health trends impacted by political ideology. Key features include:</p>
-                            <ul>
-                                <li>Merged and processed large-scale CDC vaccination and MIT Election Data Science Lab county-level datasets</li>
-                                <li>Engineered features to quantify county-level political lean and conducted comprehensive data cleaning, normalization, and handling of missing data</li>
-                                <li>Applied Pearson's correlation and linear regression, controlling for population density, median income, and healthcare access to identify key predictors of vaccination rates</li>
-                                <li>Developed interactive dashboards with Python (plot.ly) and Tableau, including choropleth maps and boxplots, to visualize geographic and statistical impact of political ideology on vaccine uptake</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+      // "press start": Enter or Space anywhere on the page opens the menu
+      document.addEventListener('keydown', (e) => {
+        if (menu.open || e.defaultPrevented || e.repeat) return;
+        if ((e.key === 'Enter' || e.key === ' ') && (document.activeElement === document.body || !document.activeElement)) {
+          e.preventDefault();
+          open();
+        }
+      });
 
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">music</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <h3>Music Production & DJing</h3>
-                            <p><strong>Listen Here:</strong> <a href="https://soundcloud.com/whoislucosis" target="_blank" style="color: #ffffff; text-decoration: underline;">https://soundcloud.com/whoislucosis</a></p>
-                            <p style="margin-top: 1rem;">Outside of my professional works, I've always had a burning passion for music. Throughout my life, I've channeled music through many of my hobbies, and use it to help fuel my creative abilities as I move through my career.</p>
-                            <ul>
-                                <li>Electronically produced songs and mixes reaching over 75k+ listeners</li>
-                                <li>8+ years of DJ experience, performing at notable venues across Boston</li>
-                                <li>Mixing music for dance studios across Illinois</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">nuvyo</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <p>currently building...</p>
-                            <p style="margin-top: 1rem;">learn more at <a href="https://nuvyo.io" target="_blank" style="color: #ffffff; text-decoration: underline;">nuvyo.io</a></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab">
-                    <div class="tab-header">
-                        <div class="tab-icon">+</div>
-                        <div class="tab-title">contact</div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-content-inner">
-                            <h3>Get In Touch</h3>
-                            <p><strong>Email:</strong> tolman.l@northeastern.edu</p>
-                            <p><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/lucastolman" target="_blank" style="color: #ffffff; text-decoration: underline;">linkedin.com/in/lucastolman</a></p>
-                            <p><strong>Location:</strong> Boston, MA</p>
-                            <div class="time-widget" id="timeWidget" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #cccccc; font-size: 0.9rem;">
-                                local time (est): --:--:-- - loading...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="./js/main.js"></script>
+      // coming back via the browser's back button: start with the menu closed
+      addEventListener('pageshow', (e) => { if (e.persisted && menu.open) menu.close(); });
+    })();
+  </script>
 </body>
 </html>

@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+.vscode/
+*.log
+.claude/
+
+# the real, undithered photo and the dev preview it was tested with —
+# the live site only needs assets/portrait.js, the baked 1-bit data.
+# regenerate with: python tools/make_portrait.py
+assets/portrait-source.jpeg
+tools/portrait-preview.png

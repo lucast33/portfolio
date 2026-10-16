@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Experience · Lucas Tolman</title>
+  <meta name="description" content="Experience, projects and education of Lucas Tolman.">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stage.css">
+  <script>document.documentElement.classList.add('js')</script>
+  <script src="space-invaders-hero.js" defer></script>
+  <script src="stage.js" defer></script>
+</head>
+<body>
+<div class="crt">
+  <header class="hud">
+    <div class="stage-nav">
+      <button class="stage-toggle" type="button" aria-expanded="false" aria-controls="stage-list"><span class="cursor" aria-hidden="true"></span>STAGE SELECT</button>
+      <nav class="dropdown pixel-frame" id="stage-list" aria-label="Stages" hidden>
+        <ul>
+          <li><a href="about.html" data-nav><span class="cursor" aria-hidden="true"></span><span>ABOUT</span></a></li>
+          <li><a href="experience.html" aria-current="page"><span class="cursor" aria-hidden="true"></span><span>EXPERIENCE</span></a></li>
+          <li><a href="contact.html" data-nav><span class="cursor" aria-hidden="true"></span><span>CONTACT</span></a></li>
+          <li class="home"><a href="index.html" data-nav><span class="cursor" aria-hidden="true"></span><span>HOME</span></a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="score"><span>SCORE</span><span data-score>0</span></div>
+    <div class="score hi"><span>HI-SCORE</span><span data-hi>0</span></div>
+  </header>
+  <div class="ufo-lane" aria-hidden="true"></div>
+
+  <main class="screen" id="main">
+    <header class="title-card">
+      <span class="sprite crab" data-pts="20" aria-hidden="true"></span>
+      <h1>EXPERIENCE</h1>
+    </header>
+
+    <!-- PLACEHOLDER COPY: drafted from the old portfolio. Edit the text freely; the typing picks up whatever is here. -->
+
+    <div class="console" data-tw aria-hidden="true">
+      <p class="cmd" data-speed="human">LOAD "MISSION_LOG",8,1</p>
+      <p>SEARCHING FOR MISSION_LOG</p>
+      <p>LOADING<span data-speed="slow"> ....</span></p>
+      <p>READY.</p>
+    </div>
+
+    <!-- styled on the attract screen's score table: one invader per mission, newest at the top like the mystery ship -->
+    <h2 class="attract" data-tw><span data-speed="title">*MISSION LOG LIST*</span></h2>
+
+    <ol class="table" aria-label="Work experience">
+      <li class="entry" data-tw>
+        <span class="sprite ufo" data-pts="150" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>SERVICENOW</h3>
+          <p class="entry-role">AI STRATEGIC OPERATIONS ASSOCIATE · AI CENTER OF ACTION</p>
+          <p class="entry-meta term">Sep 2026 – Present · Boston, MA</p>
+          <p class="prose">Part of the AI Center of Action, building the destination for AI-native marketers.</p>
+        </div>
+      </li>
+
+      <li class="entry" data-tw>
+        <span class="sprite squid" data-pts="30" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>CURATED FOR YOU</h3>
+          <p class="entry-role">GTM &amp; GROWTH FELLOW · INTERNSHIP</p>
+          <p class="entry-meta term">Feb 2026 – Apr 2026 · Austin, TX</p>
+          <!-- incomplete on LinkedIn as of writing; replace once the role description is filled out -->
+          <p class="prose">Cold outbound GTM strategy, customer and partner growth.</p>
+        </div>
+      </li>
+
+      <li class="entry" data-tw>
+        <span class="sprite crab" data-pts="20" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>NUVYO</h3>
+          <p class="entry-role">CO-FOUNDER, PRODUCT</p>
+          <p class="entry-meta term">Aug 2025 – Jun 2026 · Boston, MA</p>
+          <p class="prose">Interview prep is hard — Nuvyo doesn't have to be. During my final year at Northeastern, I co-founded Nuvyo (nuvyo.io), an AI interview companion built to rethink how students prepare for interviews.</p>
+          <p class="prose">In Fall 2025, our team went from an idea to building and demoing Nuvyo in Northeastern classrooms, working alongside career advisors, corporate partners and recruiters.</p>
+          <p class="prose">By Spring 2026, Nuvyo was on the syllabus. From 0 to 1, we turned an idea into a product that students used to interview with confidence.</p>
+        </div>
+      </li>
+
+      <li class="entry" data-tw>
+        <span class="sprite octo" data-pts="10" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>SERVICENOW</h3>
+          <p class="entry-role">MARKETING ASSOCIATE INTERN · ANALYTICS &amp; AI</p>
+          <p class="entry-meta term">Jun 2025 – Sep 2025 · Waltham, MA</p>
+          <p class="prose">Built AI-powered analytics tools and agentic AI experiences in Copilot Studio to make dashboard insights more accessible across the org.</p>
+        </div>
+      </li>
+
+      <li class="entry" data-tw>
+        <span class="sprite squid" data-pts="30" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>SERVICENOW</h3>
+          <p class="entry-role">PRODUCT &amp; SOLUTIONS MARKETING CO-OP · IT SERVICE MANAGEMENT</p>
+          <p class="entry-meta term">Jul 2024 – Dec 2024 · Waltham, MA</p>
+          <p class="prose">Led competitive analysis and go-to-market messaging for a new product, while streamlining the team's internal resources to save significant time and budget.</p>
+        </div>
+      </li>
+
+      <li class="entry" data-tw>
+        <span class="sprite crab" data-pts="20" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>RISEKIT</h3>
+          <p class="entry-role">BUSINESS &amp; QUALITY ANALYST</p>
+          <p class="entry-meta term">May 2023 – Jun 2024 · Chicago, IL</p>
+          <p class="prose">Owned QA across the product and analyzed customer data to surface insights that shaped marketing and business strategy.</p>
+        </div>
+      </li>
+
+      <li class="entry" data-tw>
+        <span class="sprite octo" data-pts="10" aria-hidden="true"></span>
+        <div>
+          <h3 class="entry-title" data-speed="title"><span aria-hidden="true">= </span>VICIOUS VISION</h3>
+          <p class="entry-role">FOUNDER · CLOTHING CO.</p>
+          <p class="entry-meta term">Jul 2020 – Jul 2023 · Chicago, IL</p>
+          <p class="prose">Founded and ran an online clothing brand end to end, from design and manufacturing to the website, marketing and finances.</p>
+        </div>
+      </li>
+    </ol>
+
+    <section class="block" data-tw>
+      <h2 class="sec">TRAINING</h2>
+      <dl class="kv" data-leaders>
+        <div><dt>SCHOOL</dt><dd>NORTHEASTERN UNIVERSITY</dd></div>
+        <div><dt>DEGREE</dt><dd>B.S. DATA SCIENCE + BUSINESS ADMIN</dd></div>
+        <div><dt>FOCUS</dt><dd>MARKETING</dd></div>
+        <div><dt>CLASS OF</dt><dd>2026</dd></div>
+        <div><dt>ABROAD</dt><dd>LONDON CAMPUS, 2022–23</dd></div>
+      </dl>
+    </section>
+
+    <p class="prompt" data-tw aria-hidden="true">&gt; <span class="idle-caret"></span></p>
+  </main>
+
+</div>
+</body>
+</html>
